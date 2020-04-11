@@ -8,7 +8,7 @@ import sys, getopt
 UNIGRAM = 'ctrip_dic/ctrip_dict.utf8'
 BIGRAM = 'ctrip_dic/ctrip_bigram.utf8'
 WORD = 'ctrip_dic/ctrip_word.utf8'
-MODEL= 'keras/B20-E60-F10-PU-Bi-RCT-CT-Bn-De.h5'
+MODEL= 'keras/B20-E60-F6-PU-Bi-W-Bn-De.h5'
 
 try:
     opts, args = getopt.getopt(sys.argv, "hu:b:w:a:", ["unigram=", "bigram=", "word=", "arch="])
