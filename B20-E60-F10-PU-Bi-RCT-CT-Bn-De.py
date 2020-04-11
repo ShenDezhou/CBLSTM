@@ -296,7 +296,7 @@ EPOCHS = 60
 modelfile = os.path.basename(__file__).split(".")[0]
 
 
-MODE = 3
+MODE = 1
 
 if MODE == 1:
     with codecs.open('plain/ctrip_training.utf8', 'r', encoding='utf8') as ft:
