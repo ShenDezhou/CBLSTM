@@ -14,7 +14,7 @@ cors_allow_all = CORS(allow_all_origins=True,
                       allow_credentials_all_origins=True
                       )
 
-class SegResource:
+class SentResource:
 
 
     bilstm=None
@@ -62,8 +62,8 @@ class SegResource:
         print("opinion result:", opinions)
         resp.media = {'data':{"opn":opinions}}
 
-
-api = falcon.API(middleware=[cors_allow_all.middleware])
-api.req_options.auto_parse_form_urlencoded = True
-api.add_route('/opinion', SegResource())
-waitress.serve(api, port=8090, url_scheme='http')
+if __name__=="__main__":
+    api = falcon.API(middleware=[cors_allow_all.middleware])
+    api.req_options.auto_parse_form_urlencoded = True
+    api.add_route('/opinion', SentResource())
+    waitress.serve(api, port=8090, url_scheme='http')
