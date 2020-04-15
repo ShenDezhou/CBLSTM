@@ -2,8 +2,9 @@ import logging
 import falcon
 from falcon_cors import CORS
 import waitress
-from seg_server import SegResource
+from seg_server import SegResource #BiLSTM and CRF
 from sent_server import SentResource
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
 l = logging.getLogger()

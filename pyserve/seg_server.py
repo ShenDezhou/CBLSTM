@@ -4,7 +4,7 @@ from falcon_cors import CORS
 import json
 import waitress
 from PUB_BiLSTM_BN import PUB_BiLSTM_BN
-
+from UBTRT_CRF import UBTRT_CRF
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
 l = logging.getLogger()
@@ -19,9 +19,19 @@ class SegResource:
 
 
     bilstm=None
+    uutrtcrf=None
 
 
     def __init__(self):
+        l.info("create uutrt-crf:")
+        self.uutrtcrf = UBTRT_CRF()
+        l.info("load crf model:")
+        self.uutrtcrf.loadCrf()
+        l.info("crf model loaded.")
+        segs = self.uutrtcrf.cut(["我昨天去清华大学。", "他明天去北京大学，再后天去麻省理工大学。"])
+        l.info("inference done.")
+        print(segs)
+
         l.info("create pub-bilstm-bn:")
         self.bilstm = PUB_BiLSTM_BN()
         l.info("load keras model:")
@@ -59,7 +69,10 @@ class SegResource:
         sentences = [s.strip() for s in sentences if len(s.strip())>0]
         if not isinstance(sentences, list):
             sentences = [sentences]
-        segsents = self.bilstm.cut(sentences)
+        if 'model' in reqdata and reqdata['model']=='crf':
+            segsents = self.uutrtcrf.cut(sentences)
+        else:
+            segsents = self.bilstm.cut(sentences)
         print("seg result:", segsents)
         resp.media = {'data':{"seg":segsents}}
 
