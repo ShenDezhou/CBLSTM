@@ -5,10 +5,11 @@ import json
 import waitress
 from PUBW_BiLSTM_BN import PUBW_BiLSTM_BN
 
+hostname = '192.168.4.250'
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
 l = logging.getLogger()
 cors_allow_all = CORS(allow_all_origins=True,
-                      allow_origins_list=['http://localhost:8081'],
+                      allow_origins_list=['http://192.168.4.250:8081'],
                       allow_all_headers=True,
                       allow_all_methods=True,
                       allow_credentials_all_origins=True
@@ -32,7 +33,7 @@ class SentResource:
 
     def on_get(self, req, resp):
         """Handles GET requests"""
-        resp.set_header('Access-Control-Allow-Origin', 'http://localhost:8081')
+        resp.set_header('Access-Control-Allow-Origin', 'http://%s:8081'%hostname)
         resp.set_header('Access-Control-Allow-Methods', '*')
         resp.set_header('Access-Control-Allow-Headers', '*')
         resp.set_header('Access-Control-Allow-Credentials','true')
@@ -46,7 +47,7 @@ class SentResource:
 
     def on_post(self, req, resp):
         """Handles POST requests"""
-        resp.set_header('Access-Control-Allow-Origin', 'http://localhost:8081')
+        resp.set_header('Access-Control-Allow-Origin', 'http://%s:8081'%hostname)
         resp.set_header('Access-Control-Allow-Methods', '*')
         resp.set_header('Access-Control-Allow-Headers', '*')
         resp.set_header('Access-Control-Allow-Credentials', 'true')
