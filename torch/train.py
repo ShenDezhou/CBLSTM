@@ -8,12 +8,6 @@ Usage:
     CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch train.py \
         --config_file 'config/rnn_config.json'
 """
-#batch size:24->14 and max length:512-256 have negtive impact on acc, after 10 epochs drop to (train_acc: 0.490404, train_f1: 0.489924, valid_acc: 0.375000, valid_f1: 0.361930,)
-
-#for bert 2 epochs
-#train_acc: 0.873826, train_f1: 0.873886, valid_acc: 0.775000, valid_f1: 0.701429
-#rnn 2 epochs
-#train_acc: 0.552470, train_f1: 0.552839, valid_acc: 0.425000, valid_f1: 0.407884
 from typing import Dict
 import argparse
 import json
@@ -32,14 +26,19 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification
+from model import BertForClassification, RnnForSentencePairClassification, LogisticRegression, BiRnnForSentencePairClassification, CharCNN, BiLstmForSentencePairClassification
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
     'bert': BertForClassification,
-    'rnn': RnnForSentencePairClassification
+    'rnn': RnnForSentencePairClassification,
+    'lr': LogisticRegression,
+    'nrnn': BiRnnForSentencePairClassification,
+    'nrnn1': RnnForSentencePairClassification,
+    'cnn': CharCNN,
+    'lstm': BiLstmForSentencePairClassification
 }
 
 
@@ -233,9 +232,14 @@ def main(config_file='config/bert_config.json'):
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
     get_path(os.path.join(config.model_path, config.experiment_name))
     get_path(config.log_path)
-    if config.model_type == 'rnn':  # build vocab for rnn
+    if config.model_type in ['lr','rnn','cnn','lstm']:  # build vocab for rnn
         build_vocab(file_in=config.all_train_file_path,
                     file_out=os.path.join(config.model_path, 'vocab.txt'))
+    if config.model_type in ['nrnn','nrnn1']:  # build vocab for rnn
+        build_vocab(file_in=config.all_train_file_path,
+                    file_out=os.path.join(config.model_path, 'vocab.txt'), language='zh-ng')
+
+
     # 1. Load data
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,

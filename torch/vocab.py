@@ -60,9 +60,16 @@ class Vocab:
             cols = range(data_frame.shape[1])
         for row in data_frame.itertuples(index=False):
             for i in cols:
-                sentence = row[i]
+                sentence = str(row[i])
                 if self.language == 'zh':
                     words = jieba.lcut(sentence)
+                elif self.language == 'zh-ng':
+                    words = jieba.lcut(sentence)
+                    #unigram
+                    words.extend(list(sentence))
+                    #bigram
+                    for offset in range(len(sentence) - 1):
+                        words.append(sentence[offset:offset + 2])
                 else:  # 'en'
                     words = nltk.word_tokenize(sentence)
                 for word in words:
@@ -86,11 +93,12 @@ class Vocab:
                 file_out.write('\n')
 
 
-def build_vocab(file_in, file_out):
+def build_vocab(file_in, file_out, language='zh'):
     """Build vocab.txt for SMP-CAIL2020-Argmine."""
-    vocab = Vocab('zh')
-    vocab.load_file_to_dict(file_in, list(range(2, 8)))
+    vocab = Vocab(language=language)
+    vocab.load_file_to_dict(file_in, list(range(1)))
     vocab.write2file(file_out, False)
+
 
 
 if __name__ == '__main__':

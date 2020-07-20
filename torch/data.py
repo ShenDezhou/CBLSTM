@@ -92,6 +92,26 @@ class Tokenizer:
         return [self.dictionary.get(w, 1) for w in tokens_list]
 
 
+class NgramTokenizer(Tokenizer):
+    @staticmethod
+    def tokenize(sentence: str) -> List[str]:
+        """Cut words for a sentence.
+
+        Args:
+            sentence: sentence
+
+        Returns:
+            words list
+        """
+        words = jieba.lcut(sentence)
+        # unigram
+        words.extend(list(sentence))
+        # bigram
+        for offset in range(len(sentence) - 1):
+            words.append(sentence[offset:offset + 2])
+        return words
+
+
 class Data:
     """Data processor for BERT and RNN model for SMP-CAIL2020-Argmine.
 
@@ -117,6 +137,8 @@ class Data:
         self.model_type = model_type
         if self.model_type == 'bert':
             self.tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)#BertTokenizer(vocab_file)
+        elif self.model_type in ['nrnn','nrnn1']:
+            self.tokenizer = NgramTokenizer(vocab_file)
         else:  # rnn
             self.tokenizer = Tokenizer(vocab_file)
         self.max_seq_len = max_seq_len
@@ -153,9 +175,9 @@ class Data:
             dataset = self._convert_sentence_pair_to_bert_dataset(
                 sc_list,  label_list)
         else:  # rnn
-            bc_list = []
+            # bc_list = []
             dataset = self._convert_sentence_pair_to_rnn_dataset(
-                sc_list, bc_list, label_list)
+                sc_list,  label_list)
         return dataset
 
     def load_train_and_valid_files(self, train_file, valid_file):
@@ -258,7 +280,7 @@ class Data:
             all_input_ids, all_input_mask, all_segment_ids)
 
     def _convert_sentence_pair_to_rnn_dataset(
-            self, s1_list, s2_list, label_list=None):
+            self, s1_list,  label_list=None):
         """Convert sentences pairs to dataset for RNN model.
 
         Args:
@@ -274,36 +296,36 @@ class Data:
             torch.utils.data.TensorDataset
                 each record: (s1_ids, s2_ids, s1_length, s2_length, label)
         """
-        all_s1_ids, all_s2_ids = [], []
-        all_s1_lengths, all_s2_lengths = [], []
+        all_s1_ids = []
+        all_s1_lengths = []
         for i in tqdm(range(len(s1_list)), ncols=80):
-            tokens_s1, tokens_s2 = s1_list[i], s2_list[i]
+            tokens_s1 = s1_list[i]
             all_s1_lengths.append(min(len(tokens_s1), self.max_seq_len))
-            all_s2_lengths.append(min(len(tokens_s2), self.max_seq_len))
+            # all_s2_lengths.append(min(len(tokens_s2), self.max_seq_len))
             if len(tokens_s1) > self.max_seq_len:
                 tokens_s1 = tokens_s1[:self.max_seq_len]
-            if len(tokens_s2) > self.max_seq_len:
-                tokens_s2 = tokens_s2[:self.max_seq_len]
+            # if len(tokens_s2) > self.max_seq_len:
+            #     tokens_s2 = tokens_s2[:self.max_seq_len]
             s1_ids = self.tokenizer.convert_tokens_to_ids(tokens_s1)
-            s2_ids = self.tokenizer.convert_tokens_to_ids(tokens_s2)
+            # s2_ids = self.tokenizer.convert_tokens_to_ids(tokens_s2)
             if len(s1_ids) < self.max_seq_len:
                 s1_ids += [0] * (self.max_seq_len - len(s1_ids))
-            if len(s2_ids) < self.max_seq_len:
-                s2_ids += [0] * (self.max_seq_len - len(s2_ids))
+            # if len(s2_ids) < self.max_seq_len:
+            #     s2_ids += [0] * (self.max_seq_len - len(s2_ids))
             all_s1_ids.append(s1_ids)
-            all_s2_ids.append(s2_ids)
+            # all_s2_ids.append(s2_ids)
         all_s1_ids = torch.tensor(all_s1_ids, dtype=torch.long)
-        all_s2_ids = torch.tensor(all_s2_ids, dtype=torch.long)
+        # all_s2_ids = torch.tensor(all_s2_ids, dtype=torch.long)
         all_s1_lengths = torch.tensor(all_s1_lengths, dtype=torch.long)
-        all_s2_lengths = torch.tensor(all_s2_lengths, dtype=torch.long)
+        # all_s2_lengths = torch.tensor(all_s2_lengths, dtype=torch.long)
         if label_list:  # train
             all_label_ids = torch.tensor(label_list, dtype=torch.long)
             return TensorDataset(
-                all_s1_ids, all_s2_ids, all_s1_lengths, all_s2_lengths,
+                all_s1_ids,  all_s1_lengths,
                 all_label_ids)
         # test
         return TensorDataset(
-            all_s1_ids, all_s2_ids, all_s1_lengths, all_s2_lengths)
+            all_s1_ids, all_s1_lengths)
 
 
 def test_data():
