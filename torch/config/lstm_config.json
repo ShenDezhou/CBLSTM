@@ -9,7 +9,7 @@
   "all_train_file_path": "data/train.csv",
 
   "batch_size": 128,
-  "trained_weight": "",
+  "trained_weight": "model/lstm/model.bin",
   "vocab_size": 29902,
   "hidden_size": 128,
   "num_classes": 2,

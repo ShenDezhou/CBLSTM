@@ -64,11 +64,13 @@ class Vocab:
                 if self.language == 'zh':
                     words = jieba.lcut(sentence)
                 elif self.language == 'zh-ng':
-                    words = jieba.lcut(sentence)
-                    #unigram
-                    words.extend(list(sentence))
-                    #bigram
+                    words = []
+                    # words = jieba.lcut(sentence)
+                    # #unigram
+                    # words.extend(list(sentence))
+                    # #bigram
                     for offset in range(len(sentence) - 1):
+                        words.append(sentence[offset])
                         words.append(sentence[offset:offset + 2])
                 else:  # 'en'
                     words = nltk.word_tokenize(sentence)

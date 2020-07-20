@@ -137,7 +137,7 @@ class Data:
         self.model_type = model_type
         if self.model_type == 'bert':
             self.tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)#BertTokenizer(vocab_file)
-        elif self.model_type in ['nrnn','nrnn1']:
+        elif self.model_type in ['nrnn','nrnn1','ncnn']:
             self.tokenizer = NgramTokenizer(vocab_file)
         else:  # rnn
             self.tokenizer = Tokenizer(vocab_file)

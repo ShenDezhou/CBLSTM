@@ -38,6 +38,7 @@ MODEL_MAP = {
     'nrnn': BiRnnForSentencePairClassification,
     'nrnn1': RnnForSentencePairClassification,
     'cnn': CharCNN,
+    'ncnn': CharCNN,
     'lstm': BiLstmForSentencePairClassification
 }
 
@@ -235,7 +236,7 @@ def main(config_file='config/bert_config.json'):
     if config.model_type in ['lr','rnn','cnn','lstm']:  # build vocab for rnn
         build_vocab(file_in=config.all_train_file_path,
                     file_out=os.path.join(config.model_path, 'vocab.txt'))
-    if config.model_type in ['nrnn','nrnn1']:  # build vocab for rnn
+    if config.model_type in ['nrnn','nrnn1','ncnn']:  # build vocab for rnn
         build_vocab(file_in=config.all_train_file_path,
                     file_out=os.path.join(config.model_path, 'vocab.txt'), language='zh-ng')
 
